@@ -18,3 +18,11 @@ services:
         value: "5678"
       - key: WEBHOOK_URL
         value: "https://n8n-render-selfhost-e22n.onrender.com/"
+      # PuppeteerがRender環境で動くように必要な環境変数
+      - key: PUPPETEER_EXECUTABLE_PATH
+        value: "/usr/bin/chromium"
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: "true"
+      # タイムゾーン（Dockerfileでも設定済みだけど一応Render側でも明示）
+      - key: GENERIC_TIMEZONE
+        value: "Asia/Tokyo"
