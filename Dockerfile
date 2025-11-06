@@ -1,40 +1,36 @@
 # ベースイメージ
 FROM n8nio/n8n:latest
 
-# Puppeteer動作のためroot権限へ
-USER root
-
-# Puppeteerに必要な依存関係とChromiumをインストール
-# Debian系Render環境では "chromium" ではなく "chromium-browser" が存在
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      ca-certificates wget gnupg fonts-liberation \
-      libnss3 libx11-xcb1 libxcomposite1 libxdamage1 libxrandr2 \
-      libxss1 libasound2 libgbm1 libpangocairo-1.0-0 libpango-1.0-0 \
-      libxshmfence1 libxkbcommon0 dumb-init chromium-browser && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Puppeteerを n8n の node_modules に直接インストール
-RUN cd /usr/local/lib/node_modules/n8n && npm install puppeteer@latest --no-audit --no-fund
-
-# Puppeteerの環境変数
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_CACHE_DIR=/tmp/.puppeteer
-
-# Puppeteerのキャッシュフォルダを作成・権限付与
-RUN mkdir -p /home/node/.cache/puppeteer /tmp/.puppeteer && \
-    chown -R node:node /home/node/.cache /tmp/.puppeteer
-
-# タイムゾーン設定（あなたの指定を維持）
+# タイムゾーン設定
 ENV GENERIC_TIMEZONE=Asia/Tokyo
 
-# nodeユーザーに戻す
+# rootユーザーに切り替え
+USER root
+
+# Puppeteerに必要な依存パッケージとChromiumをインストール
+RUN apt-get update && \
+    apt-get install -y chromium ca-certificates fonts-liberation \
+    libappindicator3-1 libasound2 libatk-bridge2.0-0 libatk1.0-0 \
+    libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 \
+    libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 \
+    libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 \
+    libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 \
+    libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 \
+    libxtst6 lsb-release wget xdg-utils && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Puppeteer本体をグローバルインストール
+RUN npm install -g puppeteer@22.15.0
+
+# Puppeteerが使うChromium実行パスを設定
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# 権限を戻す
 USER node
 
-# ポート公開
+# Webポートを公開
 EXPOSE 5678
 
-# n8n起動
+# n8n起動（デフォルト）
 ENTRYPOINT ["tini", "--"]
 CMD ["n8n"]
