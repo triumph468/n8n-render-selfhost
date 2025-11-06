@@ -16,17 +16,13 @@ RUN apk add --no-cache \
     nodejs \
     npm
 
-# Puppeteer を nodeユーザーの環境にインストール
+# Puppeteer を nodeユーザーの環境にインストール（ローカルインストール）
 USER node
-RUN npm install -g puppeteer@latest
-# 👆 npx puppeteer browsers install chrome は削除
-# （Renderで落ちる原因なので）
+RUN mkdir -p /home/node/puppeteer && cd /home/node/puppeteer && npm install puppeteer@latest
 
-# Puppeteer が使用する Chrome の実行パスを設定
+# Puppeteer の実行パスを設定
 ENV PUPPETEER_EXECUTABLE_PATH="/usr/bin/chromium"
-
-# ↑ を維持してもOK（ただし本当は /usr/bin/chromium が正しい）
-# Render側の環境変数でも同じパスを指定しておくと安全
+ENV NODE_PATH="/home/node/puppeteer/node_modules"
 
 # Webポート公開
 EXPOSE 5678
