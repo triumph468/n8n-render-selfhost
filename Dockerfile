@@ -20,8 +20,7 @@ RUN mkdir -p /home/node/puppeteer && \
     npm install puppeteer@latest
 
 # Puppeteer が使う Chrome の実行パスを設定
-ENV PUPPETEER_EXECUTABLE_PATH="/usr/bin/chromium"
-# ← ここでは PUPPETEER_SKIP_CHROMIUM_DOWNLOAD は **設定しない**
+ENV PUPPETEER_EXECUTABLE_PATH="/usr/lib/chromium/chrome"
 
 EXPOSE 5678
 ENTRYPOINT ["tini", "--"]
